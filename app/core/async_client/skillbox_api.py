@@ -1,6 +1,6 @@
 import logging
 
-import requests
+import httpx
 
 from app.core.exc import SkillBoxNotAuthorized, SkillBoxAPIException
 from app.core.types.check_statistics import CheckStatistics
@@ -13,13 +13,13 @@ from app.core.types.user import User
 logger = logging.getLogger(__name__)
 
 
-class SkillBoxAPI:
-    def __init__(self, session: requests.Session, refresh_token: str):
+class AsyncSkillBoxAPI:
+    def __init__(self, session: httpx.AsyncClient, refresh_token: str):
         self.session = session
         self.refresh_token = refresh_token
 
-    def get_access_token(self) -> str:
-        response = self.session.post(
+    async def get_access_token(self) -> str:
+        response = await self.session.post(
             "https://go.skillbox.ru/api/v1/token/refresh/",
             json={"refresh": self.refresh_token}
         )
@@ -36,23 +36,24 @@ class SkillBoxAPI:
         
         return response_data["access"]
     
-    def check_auth(self) -> bool:
-        response = self.session.get("https://go.skillbox.ru/api/v3/websockets/authorize/")
-        return response.ok
+    async def check_auth(self) -> bool:
+        response = await self.session.get("https://go.skillbox.ru/api/v3/websockets/authorize/")
+        return response.status_code // 100 == 2
 
-    def auth(self):
-        access_token = self.get_access_token()
+    async def auth(self):
+        access_token = await self.get_access_token()
         self.session.headers.update({
             "x-auth": f"Bearer {access_token}"
         })
     
-        if not self.check_auth():
+        if not await self.check_auth():
             raise SkillBoxNotAuthorized("Не удалось авторизоваться, попробуйте обновить Refresh Token")
     
-    def get_all_homeworks(self, course_uuid: str, status: HomeworkStatus, order: HomeworkOrder) -> list[Homework]:
+    async def get_all_homeworks(self, course_uuid: str, status: HomeworkStatus, order: HomeworkOrder) -> list[Homework]:
         url = f"https://go.skillbox.ru/api/v3/teachers/courses/{course_uuid}/homeworks/" \
               f"?ordering={order.value}&status={status.value}"
-        homeworks_data = self.session.get(url).json()
+        response = await self.session.get(url)
+        homeworks_data = response.json()
 
         if not isinstance(homeworks_data, dict) or "results" not in homeworks_data.keys():
             raise SkillBoxAPIException(f"Не удалось получить домашние работы")
@@ -68,18 +69,21 @@ class SkillBoxAPI:
             url = homeworks_data["next"]
             if url is None:
                 break
-            
-            homeworks_data = self.session.get(url).json()
+
+            response = await self.session.get(url)
+            homeworks_data = response.json()
             
         return result
     
-    def get_check_statistics(self, status: HomeworkStatus) -> list[CheckStatistics]:
+    async def get_check_statistics(self, status: HomeworkStatus) -> list[CheckStatistics]:
         url = f"https://go.skillbox.ru/api/v3/teachers/current/courses/check-statistics/" \
               f"?user_homework_status={status.value}"
-        
-        check_statistics_data = self.session.get(url).json()
+
+        response = await self.session.get(url)
+        check_statistics_data = response.json()
+
         result = []
         for e in check_statistics_data:
             result.append(CheckStatistics(**e))
-            
+
         return result

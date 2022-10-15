@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import IDFilter, Command
 
-from app.core.skillbox_api import SkillBoxAPI
+from app.core.async_client import AsyncSkillBoxAPI
 from app.core.types.homework import HomeworkStatus
 from bot.config_loader import Config
 from bot.core.closer_task import get_closer_task_time
@@ -9,8 +9,8 @@ from bot.core.decorators import skillbox_api_required
 
 
 @skillbox_api_required
-async def show_current_tasks(m: types.Message, api: SkillBoxAPI):
-    stats = api.get_check_statistics(status=HomeworkStatus.WAIT)
+async def show_current_tasks(m: types.Message, api: AsyncSkillBoxAPI):
+    stats = await api.get_check_statistics(status=HomeworkStatus.WAIT)
 
     await m.answer("\n\n".join(
         f"<b>{e.name}</b>\n"
@@ -21,12 +21,13 @@ async def show_current_tasks(m: types.Message, api: SkillBoxAPI):
 
 
 @skillbox_api_required
-async def show_closer_tasks(m: types.Message, api: SkillBoxAPI):
-    course_uuids = [(e.id, e.name) for e in api.get_check_statistics(status=HomeworkStatus.WAIT)]
+async def show_closer_tasks(m: types.Message, api: AsyncSkillBoxAPI):
+    courses = await api.get_check_statistics(status=HomeworkStatus.WAIT)
+    course_uuids = [(e.id, e.name) for e in courses]
 
     res = []
     for course_id, name in course_uuids:
-        deadline = get_closer_task_time(api, course_id)
+        deadline = await get_closer_task_time(api, course_id)
         res.append((name, deadline))
 
     await m.answer("\n\n".join(

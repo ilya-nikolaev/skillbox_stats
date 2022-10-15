@@ -1,13 +1,13 @@
-import requests
+import httpx
 
 from app.core.exc import SkillBoxNotAuthorized
-from app.core.skillbox_api import SkillBoxAPI
+from app.core.sync_client.skillbox_api import SkillBoxAPI
 from app.helper import get_refresh_token
 from app.core.types.homework import HomeworkStatus
 
 
 def main():
-    session = requests.Session()
+    session = httpx.Client()
     skillbox_api = SkillBoxAPI(session, get_refresh_token())
     while True:
         try:

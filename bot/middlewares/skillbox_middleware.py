@@ -1,12 +1,12 @@
 from aiogram.dispatcher.middlewares import LifetimeControllerMiddleware
 
-from app.core.skillbox_api import SkillBoxAPI
+from app.core.async_client import AsyncSkillBoxAPI
 
 
 class SkillBoxAPIMiddleware(LifetimeControllerMiddleware):
     skip_patterns = ["error", "update"]
 
-    def __init__(self, skillbox_api: SkillBoxAPI):
+    def __init__(self, skillbox_api: AsyncSkillBoxAPI):
         self.api = skillbox_api
         super().__init__()
 

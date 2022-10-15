@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Command, IDFilter
 
 from app.core.exc import SkillBoxNotAuthorized
-from app.core.skillbox_api import SkillBoxAPI
+from app.core.async_client import AsyncSkillBoxAPI
 from bot.config_loader import Config
 
 
@@ -22,12 +22,12 @@ async def unauthorized_start_message(m: types.Message):
     await m.answer("Бот доступен только пользователям из белого списка, если вышла ошибка — напишите @rnurnu")
 
 
-async def plain_text(m: types.Message, api: SkillBoxAPI):
+async def plain_text(m: types.Message, api: AsyncSkillBoxAPI):
     prev_token = api.refresh_token
     api.refresh_token = m.text
 
     try:
-        api.auth()
+        await api.auth()
         await m.answer("Refresh Token успешно обновлен!")
 
         with sqlite3.connect("auth.db") as connection:

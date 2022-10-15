@@ -2,13 +2,16 @@ import asyncio
 import logging
 import sqlite3
 
-import requests
+import httpx
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import ParseMode
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
-from app.core.skillbox_api import SkillBoxAPI
+from app.core.async_client import AsyncSkillBoxAPI
 from bot.config_loader import load_config, Config
+from bot.core.notify import notify
 from bot.handlers.basic import register_basic
 from bot.handlers.overview import register_overview
 from bot.middlewares.skillbox_middleware import SkillBoxAPIMiddleware
@@ -19,7 +22,7 @@ def setup_handlers(dp: Dispatcher, config: Config):
     register_basic(dp, config)
 
 
-def setup_middlewares(dp: Dispatcher, api: SkillBoxAPI):
+def setup_middlewares(dp: Dispatcher, api: AsyncSkillBoxAPI):
     dp.middleware.setup(SkillBoxAPIMiddleware(api))
 
 
@@ -48,20 +51,27 @@ async def main():
     storage = MemoryStorage()
     dp = Dispatcher(bot=bot, storage=storage)
 
-    setup_handlers(dp, config)
-
     refresh_token = init_db_parameters()
     if refresh_token is None:
         logging.error("Не установлен Refresh Token")
         return
 
-    sync_session = requests.Session()
-    skillbox_api = SkillBoxAPI(
-        session=sync_session,
+    session = httpx.AsyncClient()
+    skillbox_api = AsyncSkillBoxAPI(
+        session=session,
         refresh_token=refresh_token
     )
 
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(
+        notify,
+        args=[skillbox_api, bot, config],
+        trigger=IntervalTrigger(minutes=30)
+    )
+    scheduler.start()
+
     setup_middlewares(dp, skillbox_api)
+    setup_handlers(dp, config)
 
     try:
         logging.info("Bot is starting...")
