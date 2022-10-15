@@ -1,4 +1,8 @@
-refresh_token.txt
+# auth data
+.env
+auth.db
+
+# project trash
 .idea/
 venv/
 *.pyc
