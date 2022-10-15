@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from typing import Optional
 
 from app.core.client import AsyncSkillBoxAPI
@@ -20,6 +20,10 @@ def get_deadline(homework: Homework):
 
 async def get_closer_task_time(api: AsyncSkillBoxAPI, course_id: str) -> Optional[datetime]:
     homeworks = await api.get_all_homeworks(course_id, status=HomeworkStatus.WAIT, order=HomeworkOrder.NEW)
-    if homeworks:
-        return min(deadline for homework in homeworks if (deadline := get_deadline(homework)) > datetime.now())
-    return None
+    try:
+        return min(
+            deadline for homework in homeworks if
+            (deadline := get_deadline(homework)) > datetime.now(deadline.tzinfo)
+        )
+    except ValueError:
+        return None
