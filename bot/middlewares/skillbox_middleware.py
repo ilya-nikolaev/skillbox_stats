@@ -1,6 +1,6 @@
 from aiogram.dispatcher.middlewares import LifetimeControllerMiddleware
 
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 
 
 class SkillBoxAPIMiddleware(LifetimeControllerMiddleware):

@@ -1,7 +1,7 @@
 import httpx
 
 from app.core.exc import SkillBoxNotAuthorized
-from app.core.sync_client.skillbox_api import SkillBoxAPI
+from app.core.client import SkillBoxAPI
 from app.helper import get_refresh_token
 from app.core.types.homework import HomeworkStatus
 

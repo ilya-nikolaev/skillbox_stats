@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from aiogram import Bot
 
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 from app.core.types.homework import HomeworkStatus
 from bot.config_loader import Config
 from bot.core.closer_task import get_closer_task_time

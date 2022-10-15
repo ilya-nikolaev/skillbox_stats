@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 from app.core.types.homework import HomeworkStatus, HomeworkOrder, Homework
 
 

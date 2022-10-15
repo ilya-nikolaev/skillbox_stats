@@ -5,7 +5,7 @@ from aiogram import types
 from aiogram.dispatcher.handler import CancelHandler
 
 from app.core.exc import SkillBoxNotAuthorized
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 
 
 def skillbox_api_required(f: Callable):

@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Command, IDFilter
 
 from app.core.exc import SkillBoxNotAuthorized
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 from bot.config_loader import Config
 
 

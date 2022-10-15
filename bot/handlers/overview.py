@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import IDFilter, Command
 
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 from app.core.types.homework import HomeworkStatus
 from bot.config_loader import Config
 from bot.core.closer_task import get_closer_task_time

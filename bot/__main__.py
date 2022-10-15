@@ -9,7 +9,7 @@ from aiogram.types import ParseMode
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from app.core.async_client import AsyncSkillBoxAPI
+from app.core.client import AsyncSkillBoxAPI
 from bot.config_loader import load_config, Config
 from bot.core.notify import notify
 from bot.handlers.basic import register_basic
