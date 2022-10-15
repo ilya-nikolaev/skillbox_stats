@@ -21,5 +21,5 @@ def get_deadline(homework: Homework):
 async def get_closer_task_time(api: AsyncSkillBoxAPI, course_id: str) -> Optional[datetime]:
     homeworks = await api.get_all_homeworks(course_id, status=HomeworkStatus.WAIT, order=HomeworkOrder.NEW)
     if homeworks:
-        return min(get_deadline(homework) for homework in homeworks)
+        return min(deadline for homework in homeworks if (deadline := get_deadline(homework)) > datetime.now())
     return None

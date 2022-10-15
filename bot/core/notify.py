@@ -15,7 +15,7 @@ async def notify(api: AsyncSkillBoxAPI, bot: Bot, config: Config):
         time = await get_closer_task_time(api, course.id)
         delta = time - datetime.now()
 
-        if timedelta(0) < delta < timedelta(hours=1):
+        if delta < timedelta(hours=1):
             text.append(f"До следующего дедлайна в курсе {course.name} осталось меньше часа")
 
     if text:
